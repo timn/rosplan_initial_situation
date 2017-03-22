@@ -107,6 +107,15 @@ public:
 
 			get_predicates();
 
+			if (! verify_predicates(predicates_init_) ||
+			    ! verify_predicates(predicates_goal_) )
+			{
+				ROS_ERROR("[RP-IniSit] ***** CRITICAL ERROR: failed to verify predicates");
+				ROS_ERROR("[RP-IniSit] ***** CRITICAL ERROR: shutting down without adding to KB");
+				ros::shutdown();
+				return;
+			}
+
 			create_svc_update_knowledge();
 
 			if (cfg_clear_kb_) kb_clear_all();
@@ -126,7 +135,7 @@ public:
 			ROS_INFO("[RP-IniSit] Planning System reports state '%s', will keep waiting", msg->data.c_str());
 		}
 	}
-	
+
 	void
 	read_config_objects(ros::NodeHandle &n, std::string key, ObjectMap &elements)
 	{
@@ -222,13 +231,23 @@ public:
 				              [&pred_str](const auto &kv) { pred_str += " " + kv.key + ":" + kv.value; });
 				ROS_INFO("[RP-IniSit] Relevant predicate: (%s%s)", pn.c_str(), pred_str.c_str());
 				predicates_[pn] = pred_srv.response.predicate;
-			} else {
-				ROS_ERROR("[RP-IniSit] Failed to get predicate details for %s", pn.c_str());
-				throw std::runtime_error("Unknown predicate type");
 			}
 		}
 	}
-	
+
+	bool
+	verify_predicates(const PredicateMap &pm)
+	{
+		bool rv = true;
+		for (const auto &p : pm) {
+			if (predicates_.find(p.first) == predicates_.end()) {
+				ROS_WARN("[RP-IniSit] Could not get information for predicate '%s'", p.first.c_str());
+				rv = false;
+			}
+		}
+		return rv;
+	}
+
 	void
 	kb_clear_all()
 	{
