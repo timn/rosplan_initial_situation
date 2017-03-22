@@ -59,9 +59,23 @@ public:
 			n.getParam("start_planning", cfg_start_planning_);
 		}
 
-		read_config_objects(privn, "objects", objects_);
-		read_config_predicates(privn, "init", predicates_init_);
-		read_config_predicates(privn, "goal", predicates_goal_);
+		if (privn.hasParam("objects")) {
+			read_config_objects(privn, "objects", objects_);
+		} else {
+			ROS_INFO("[RP-IniSit] No objects have been specified");
+		}
+
+		if (privn.hasParam("init")) {
+			read_config_predicates(privn, "init", predicates_init_);
+		} else {
+			ROS_INFO("[RP-IniSit] No initial attributes have been specified");
+		}
+
+		if (privn.hasParam("goal")) {
+			read_config_predicates(privn, "goal", predicates_goal_);
+		} else {
+			ROS_INFO("[RP-IniSit] No goal has been specified");
+		}
 
 		pub_planning_cmd_ =
 			n.advertise<std_msgs::String>("kcl_rosplan/planning_commands", 10, true);
