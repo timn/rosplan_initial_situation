@@ -103,7 +103,7 @@ public:
 	ps_state_cb(const std_msgs::String::ConstPtr& msg)
 	{
 		if (msg->data == "Ready") {
-			ROS_INFO("[RB-IniSit] Planning System ready, proceeding");
+			ROS_INFO("[RP-IniSit] Planning System ready, proceeding");
 
 			get_predicates();
 
